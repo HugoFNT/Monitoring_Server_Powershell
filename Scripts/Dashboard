@@ -5,8 +5,9 @@ Import-Module D:\ESGI\Powershell\Monitoring\Projet_PowerShell\Script\Script_Serv
 
 $filepath = 'D:\ESGI\Powershell\Monitoring\dashboard.html'
 $time = Get-Date
+$FirewallRule = Get-NetFirewallRule
 
-Dashboard -Name 'Monitoring' -FilePath $filepath {
+Dashboard -Name 'Monitoring' -FilePath $filepath  {
     Tab -Name 'Accueil' {
         Section -Name 'Heure' {
             Table -HideFooter -DataTable $time}
@@ -14,7 +15,9 @@ Dashboard -Name 'Monitoring' -FilePath $filepath {
     Tab -Name 'Hardware' {
         Section -Name 'Processeur : Charges - Vitesses'  {
             Panel {
-                Table -HideFooter -DataTable (charge_cpu)
+                Table -HideFooter -DataTable (charge_cpu) {
+                    TableConditionalFormatting -Name 'Average' -ComparisonType number -Operator gt -Value 10 -Color White -BackgroundColor Crimson -Row
+            }
             }
             Panel {
                 Table -HideFooter -DataTable (vitesse_cpu)
@@ -29,8 +32,7 @@ Dashboard -Name 'Monitoring' -FilePath $filepath {
             }
             Panel {
                 Chart -Title 'Disque utilisé' -TitleAlignment center {}
-                
-                Table -HideFooter -DataTable (total_DUsed)
+                Table -HideFooter -DataTable (total_DUsed) 
                 }           
             }
         }
@@ -47,10 +49,15 @@ Dashboard -Name 'Monitoring' -FilePath $filepath {
             }
         }
         Section -Name 'Liste des services' {
-            Table -HideFooter -DataTable (liste_total_services)
+            Table -HideFooter -DataTable (liste_total_services) {
+                TableConditionalFormatting -Name 'Status' -ComparisonType string -Operator eq -Value 'Stopped' -Color BlueViolet -Row
+            }
             }
         Section -Name 'Règles de Firewall' {
-            Table -HideFooter -DataTable (rules_status)
+           Table -HideFooter -DataTable (rules_status)
+            }
+        Section -Name 'Liste des règles Firewall' {
+            Table -HideFooter -DataTable $FirewallRule
             }
 }
 }
